@@ -17,12 +17,13 @@ class Model {
 	protected static function getSchema() {
 		if(!isset(static::$schema)) {
 			$db = ResourceManager::getDB();
+			$config = ResourceManager::getConfig();
 			$sql = sprintf(
-				'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s ORDER BY ORDINAL_POSITION ASC',
-				$db->quote(static::tableName())
+				'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = %s AND table_name = %s ORDER BY ORDINAL_POSITION ASC',
+				$db->quote($config['database']['dbname']),$db->quote(static::tableName())
 			);
 			$result = $db->query($sql);
-			static::$schema = $result->fetchColumn();
+			static::$schema = $result->fetchAll(\PDO::FETCH_COLUMN,0);
 		}
 		return static::$schema;
 	}
@@ -33,13 +34,25 @@ class Model {
 			preg_replace('/^(.*\\\\)?/','',Help::underscore(get_called_class())).'s';
 	}
 
-	public static function find($id) {
-		$sql = sprintf(
-			"SELECT %s.* FROM %s WHERE id = %d",
-			static::tableName(),static::tableName(),$id
-		);
-		$result = ResourceManager::getDB()->query($sql);
-		return $result->fetchObject(get_called_class(),array(array(),false));
+	public static function find($id = 'all') {
+		if($id == 'all') {
+			$sql = sprintf(
+				'SELECT %s.* FROM %s',
+				static::tableName(), static::tableName()
+			);
+			$result = ResourceManager::getDB()->query($sql);
+			return $result->fetchAll(\PDO::FETCH_CLASS,get_called_class(),array(array(),false));
+		}
+		elseif(true){
+			$sql = sprintf(
+				"SELECT %s.* FROM %s WHERE id = %d",
+				static::tableName(),static::tableName(),$id
+			);
+			$result = ResourceManager::getDB()->query($sql);
+			//error_log("in find: " . get_called_class());
+			//var_dump($result);
+			return $result->fetchObject(get_called_class(),array(array(),false));
+		}
 	}
 
 
@@ -52,6 +65,7 @@ class Model {
 	protected $id;
 
 	public function __construct($initial = array(),$new = true) {
+		//error_log(get_class($this));
 		static::getSchema();
 		$this->new = $new;
 		$this->dirty = array();
@@ -73,6 +87,9 @@ class Model {
 	public function __get($name) {
 		if(isset($this->data[$name])) {
 			return $this->data[$name];
+		}
+		elseif($name == 'id') {
+			return $this->id;
 		}
 		else {
 			throw new \Exception("Undefined Property");

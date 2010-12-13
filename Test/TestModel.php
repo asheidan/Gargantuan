@@ -10,7 +10,7 @@ require_once('Gargantuan/ResourceManager.php');
 
 //use \Gargantuan as Gargantuan;
 
-class_alias('Gargantuan\Model','Model');
+//class_alias('Gargantuan\Model','Model');
 class_alias('Gargantuan\DB','DB');
 
 \Mock::generate('PDO');
