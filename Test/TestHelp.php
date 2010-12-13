@@ -12,4 +12,10 @@ class TestHelp extends \UnitTestCase {
 		$expected = "camel_cased_string";
 		$this->assertEqual($expected,\Gargantuan\Help::underscore($initial));
 	}
+
+	function testCamelCase() {
+		$initial = "under_scored_string";
+		$expected = "UnderScoredString";
+		$this->assertEqual($expected,\Gargantuan\Help::camelcase($initial));
+	}
 }
