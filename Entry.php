@@ -22,22 +22,30 @@ class Entry {
 		}
 	}
 
-	public static function handleRequest() {
+	protected static $base;
+	protected static $request;
+	public function handleRequest() {
+		session_start();
 		$config = ResourceManager::getConfig();
 		$app_conf = $config['application'];
+		static::$base = $app_conf['baseurl'];
 		$route = new Route($app_conf['default_controller'],$app_conf['baseurl']);
-		$request = $route->parse($_SERVER['REQUEST_URI']);
+		static::$request = $route->parse($_SERVER['REQUEST_URI']);
 		//print_r($_SERVER);
 		//print_r($request);
 
-		$controller_class = $request->controller;
-		$controller = new $controller_class($request);
+		$controller_class = static::$request->controller;
+		$controller = new $controller_class(static::$request);
 
-		$action_name = $request->action;
+		$action_name = static::$request->action;
 
 		$controller->get();
 		$controller->render($action_name);
-		
+	}
+
+	public static function handleRedirect($path) {
+		$_SESSION['_PARAMETERS_'] = static::$request->parameters;
+		header(sprintf('Location: %s%s',static::$base,$path));
 	}
 
 }

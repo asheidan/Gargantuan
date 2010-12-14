@@ -91,8 +91,11 @@ class Model {
 		elseif($name == 'id') {
 			return $this->id;
 		}
+		elseif(in_array($name,static::getSchema())) {
+			return NULL;
+		}
 		else {
-			throw new \Exception("Undefined Property");
+			throw new \Exception("Undefined Property: $name");
 		}
 	}
 

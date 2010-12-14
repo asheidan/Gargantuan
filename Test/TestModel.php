@@ -124,4 +124,9 @@ class TestModel extends \UnitTestCase {
 		$model = new MockModel(array('name'=>'Pelle Karlsson','id'=>42),false);
 		$this->assertTrue($model->save());
 	}
+
+	//function testFindBySQL() {
+		//$find_sql = "users.id = 42 AND name LIKE '%Arne%'";
+		//$db = new \MockDB();
+		//$db->expectOnce('query',array(sprintf('SELECT users.* FROM users WHERE
 }

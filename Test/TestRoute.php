@@ -44,4 +44,10 @@ class TestRoute extends \UnitTestCase {
 		$this->assertEqual('edit',$result->action);
 	}
 
+	function testNoId () {
+		$result = $this->route->parse('/session/create');
+		$this->assertEqual('SessionController',$result->controller);
+		$this->assertEqual('create',$result->action);
+		$this->assertNull($result->id);
+	}
 }
