@@ -22,7 +22,12 @@ class MockModel extends \Gargantuan\Model {
 		'children' => array(
 			'type' => 'hasMany',
 			'class' => 'Gargantuan\Test\MockChild',
-			'remoteKey' => 'parent_id'
+			'remoteKey' => 'parent_id',
+		),
+		'parent' => array(
+			'type' => 'belongsTo',
+			'class' => 'Gargantuan\Test\MockModel',
+			'localKey' => 'name'
 		)
 	);
 }
@@ -171,5 +176,18 @@ class TestModel extends \UnitTestCase {
 
 		$model = new MockModel(array('id'=>42),false);
 		$children = $model->children;
+	}
+
+	function testChildRelationsShouldUseCorrectLocalKey() {
+		$fetch_sql = "SELECT mock_models.* FROM mock_models WHERE id = 'arne'";
+		$db = new \MockDB();
+		$db->expectOnce('query',array($fetch_sql));
+		$db->returns('query',new \MockPDOStatement());
+		$db->returns('quote',"'arne'",array('arne'));
+
+		\Gargantuan\ResourceManager::setDB($db);
+
+		$model = new MockModel(array('id'=>42,'name'=>'arne'),false);
+		$parent = $model->parent;
 	}
 }

@@ -14,6 +14,14 @@ class Model {
 	protected static $schema;
 	protected static $db;
 	protected static $validations = array();
+	/**
+	 * Relations
+	 * array(
+	 *		type => hasMany
+	 *		class => class_name
+	 *		localKey =>
+	 *		remoteKey =>
+	 */
 	protected static $relations = array();
 
 	protected static function getSchema() {
@@ -120,7 +128,28 @@ class Model {
 		}
 		elseif(isset(static::$relations[$name])) {
 			$r = static::$relations[$name];
-			return $r['class']::findByFields(array($r['remoteKey'] => $this->id));
+			if(isset($r['localKey'])) {
+				$local_key = $r['localKey'];
+			}
+			else {
+				$local_key = 'id';
+			}
+			if(isset($r['remoteKey'])) {
+				$remote_key = $r['remoteKey'];
+			}
+			else {
+				$remote_key = 'id';
+			}
+			switch($r['type']) {
+			case "hasMany":
+				$this->data[$name] = $r['class']::findByFields(array($remote_key => $this->$local_key));
+				break;
+			case "belongsTo":
+				$a = $r['class']::findByFields(array($remote_key => $this->$local_key));
+				$this->data[$name] = $a[0];
+				break;				
+			}
+			return $this->data[$name];
 		}
 		else {
 			return NULL;
