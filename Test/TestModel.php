@@ -18,14 +18,22 @@ class_alias('Gargantuan\DB','DB');
 \Mock::generate('PDOStatement');
 
 class MockModel extends \Gargantuan\Model {
+	protected static $relations = array(
+		'children' => array(
+			'type' => 'hasMany',
+			'class' => 'Gargantuan\Test\MockChild',
+			'remoteKey' => 'parent_id'
+		)
+	);
 }
+class MockChild extends \Gargantuan\Model {}
 
 class TestModel extends \UnitTestCase {
 	function setUp() {
 		//print_r(get_declared_classes());
 		$schema_query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'mock_models' ORDER BY ORDINAL_POSITION ASC";
 		$this->stmt = new \MockPDOStatement();
-		$this->stmt->returns('fetchColumn',array('id','name'));
+		$this->stmt->returns('fetchAll',array('id','name'));
 
 		$this->db = new \MockDB();
 		//$this->db->expectOnce('query',array($schema_query));
@@ -45,6 +53,7 @@ class TestModel extends \UnitTestCase {
 	function testCleanObjectShouldntSave() {
 		$db = new \MockDB();
 		$db->expectNever('exec');
+		$db->returns('query',new \MockPDOStatement());
 		\Gargantuan\ResourceManager::setDB($db);
 		$model = new MockModel();
 		$model->save();
@@ -85,6 +94,7 @@ class TestModel extends \UnitTestCase {
 		$db->returns('quote',"'Arne Nissesson'",array("Arne Nissesson"));
 		$db->returns('exec',true,array($insert_sql));
 		$db->expectOnce('exec',array($insert_sql));
+		$db->returns('query',new \MockPDOStatement());
 
 		\Gargantuan\ResourceManager::setDB($db);
 		
@@ -118,6 +128,7 @@ class TestModel extends \UnitTestCase {
 		$db->returns('exec',true);
 		$db->expectOnce('quote',array("Pelle Karlsson"));
 		$db->returns('quote',"'Pelle Karlsson'",array("Pelle Karlsson"));
+		$db->returns('query',new \MockPDOStatement());
 
 		\Gargantuan\ResourceManager::setDB($db);
 
@@ -129,9 +140,36 @@ class TestModel extends \UnitTestCase {
 		$find_sql = "SELECT users.* FROM users WHERE users.id = 42 AND name LIKE '%Arne%'";
 		$db = new \MockDB();
 		$db->expectOnce('query',array($find_sql));
+		$db->returns('query',new \MockPDOStatement());
 
 		\Gargantuan\ResourceManager::setDB($db);
 
 		MockModel::findBySQL($find_sql);
+	}
+
+	function testFindByFields() {
+		$find_sql = "SELECT mock_models.* FROM mock_models WHERE id = 42 AND name = 'arne'";
+		$db = new \MockDB();
+		$db->expectOnce('query',array($find_sql));
+		$db->returns('query',new \MockPDOStatement());
+		$db->returns('quote',42,array(42));
+		$db->returns('quote',"'arne'",array('arne'));
+
+		\Gargantuan\ResourceManager::setDB($db);
+
+		MockModel::findByFields(array('id' => 42,'name'=>'arne'));
+	}
+
+	function testChildRelationsShouldBeFetchedWhenCalled() {
+		$fetch_sql = 'SELECT mock_childs.* FROM mock_childs WHERE parent_id = 42';
+		$db = new \MockDB();
+		$db->expectOnce('query',array($fetch_sql));
+		$db->returns('query',new \MockPDOStatement());
+		$db->returns('quote',42,array(42));
+
+		\Gargantuan\ResourceManager::setDB($db);
+
+		$model = new MockModel(array('id'=>42),false);
+		$children = $model->children;
 	}
 }

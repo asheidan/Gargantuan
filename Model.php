@@ -14,6 +14,7 @@ class Model {
 	protected static $schema;
 	protected static $db;
 	protected static $validations = array();
+	protected static $relations = array();
 
 	protected static function getSchema() {
 		if(!isset(static::$schema)) {
@@ -25,6 +26,9 @@ class Model {
 			);
 			$result = $db->query($sql);
 			static::$schema = $result->fetchAll(\PDO::FETCH_COLUMN,0);
+			if(NULL == static::$schema) {
+				static::$schema = array();
+			}
 		}
 		return static::$schema;
 	}
@@ -57,8 +61,8 @@ class Model {
 	}
 
 	public static function findBySQL($sql) {
-		$result = ResourceManager::getDB()->query($db);
-		return $fetchAll(\PDO::FETCH_CLASS, get_called_class(),array(array(),false));
+		$result = ResourceManager::getDB()->query($sql);
+		return $result->fetchAll(\PDO::FETCH_CLASS, get_called_class(),array(array(),false));
 	}
 	public static function findByFields($fields) {
 		if(count($fields) > 0) {
@@ -113,6 +117,10 @@ class Model {
 		}
 		elseif($name == 'id') {
 			return $this->id;
+		}
+		elseif(isset(static::$relations[$name])) {
+			$r = static::$relations[$name];
+			return $r['class']::findByFields(array($r['remoteKey'] => $this->id));
 		}
 		else {
 			return NULL;
