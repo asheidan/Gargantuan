@@ -16,15 +16,9 @@ class MockController extends \Gargantuan\Controller {
 }
 //class_alias('\Gargantuan\Test\MockController','MockController');
 //\Mock::generate('MockController','MockMockController'); //,array('index'));
+\Mock::generate('Request');
 
 class TestController extends \UnitTestCase {
-	function setUp() {
-		$this->controller = new MockController();
-	}
-
 	function testEmptyGetShouldGetIndex() {
-		//$this->controller->returns('index',NULL);
-		//$this->controller->expectOnce('index',array());
-		$this->controller->get();
 	}
 }
