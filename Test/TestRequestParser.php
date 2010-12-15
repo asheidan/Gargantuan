@@ -6,9 +6,9 @@ namespace Gargantuan\Test;
 require_once('simpletest/autorun.php');
 //require_once('simpletest/mock_objects.php');
 
-require_once('Gargantuan/Route.php');
+require_once('Gargantuan/RequestParser.php');
 
-class MockRoute extends \Gargantuan\Route {
+class MockRequestParser extends \Gargantuan\RequestParser {
 	public function __construct() {
 		$this->default_controller = "MockController";
 	}
@@ -16,7 +16,7 @@ class MockRoute extends \Gargantuan\Route {
 
 class TestRoute extends \UnitTestCase {
 	function setUp() {
-		$this->route = new MockRoute();
+		$this->route = new MockRequestParser();
 	}
 
 	function testEmptyRequest () {

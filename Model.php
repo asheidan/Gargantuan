@@ -13,6 +13,7 @@ class Model {
 	 */
 	protected static $schema;
 	protected static $db;
+	protected static $validations = array();
 
 	protected static function getSchema() {
 		if(!isset(static::$schema)) {
@@ -55,6 +56,26 @@ class Model {
 		}
 	}
 
+	public static function findBySQL($sql) {
+		$result = ResourceManager::getDB()->query($db);
+		return $fetchAll(\PDO::FETCH_CLASS, get_called_class(),array(array(),false));
+	}
+	public static function findByFields($fields) {
+		if(count($fields) > 0) {
+			$field_data = join(' AND ',array_map('static::sqlFragSetField',array_keys($fields),array_values($fields)));
+			$sql = sprintf(
+				'SELECT %s.* FROM %s WHERE %s',
+				static::tableName(),static::tableName(),$field_data
+			);
+			$result = ResourceManager::getDB()->query($sql);
+			return $result->fetchAll(\PDO::FETCH_CLASS,get_called_class(),array(array(),false));
+		}
+		else {
+			return array();
+		}
+	}
+
+
 
 	/**
 	 * Instance
@@ -78,9 +99,11 @@ class Model {
 		if($name == 'id') {
 			$this->id = $value;
 		}
-		elseif(in_array($name,static::getSchema())) {
+		else {
+			if(in_array($name,static::getSchema())) {
+				$this->dirty[$name] = $value;
+			}
 			$this->data[$name] = $value;
-			$this->dirty[$name] = $value;
 		}
 	}
 
@@ -91,11 +114,8 @@ class Model {
 		elseif($name == 'id') {
 			return $this->id;
 		}
-		elseif(in_array($name,static::getSchema())) {
-			return NULL;
-		}
 		else {
-			throw new \Exception("Undefined Property: $name");
+			return NULL;
 		}
 	}
 
@@ -106,8 +126,19 @@ class Model {
 		return $this->new;
 	}
 
+	public function validate() {
+		$class_name = get_called_class();
+		foreach(static::$validations as $name => $validation) {
+			if(!$class_name::$validation($this->data[$name])) {
+				flash(sprintf('%s is not valid',$name),'error');
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public function save() {
-		if($this->isDirty()) {
+		if($this->isDirty() and $this->validate()) {
 			$db = ResourceManager::getDB();
 			$sql = NULL;
 			if($this->isNew()) {
@@ -134,6 +165,7 @@ class Model {
 			}
 			return $db->exec($sql);
 		}
+		return false;
 	}
 
 	protected static function sqlFragSetField($name,$value){

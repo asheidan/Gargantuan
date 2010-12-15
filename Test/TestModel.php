@@ -125,8 +125,13 @@ class TestModel extends \UnitTestCase {
 		$this->assertTrue($model->save());
 	}
 
-	//function testFindBySQL() {
-		//$find_sql = "users.id = 42 AND name LIKE '%Arne%'";
-		//$db = new \MockDB();
-		//$db->expectOnce('query',array(sprintf('SELECT users.* FROM users WHERE
+	function testFindBySQL() {
+		$find_sql = "SELECT users.* FROM users WHERE users.id = 42 AND name LIKE '%Arne%'";
+		$db = new \MockDB();
+		$db->expectOnce('query',array($find_sql));
+
+		\Gargantuan\ResourceManager::setDB($db);
+
+		MockModel::findBySQL($find_sql);
+	}
 }

@@ -27,7 +27,7 @@ class Request {
 		$this->parameters[$name] = $value;
 	}
 }
-class Route {
+class RequestParser {
 	protected static $re = '_/?([^/]+)_';
 	protected $routes = array();
 	protected $default_controller;

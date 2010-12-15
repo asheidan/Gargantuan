@@ -29,8 +29,11 @@ class Entry {
 		$config = ResourceManager::getConfig();
 		$app_conf = $config['application'];
 		static::$base = $app_conf['baseurl'];
-		$route = new Route($app_conf['default_controller'],$app_conf['baseurl']);
-		static::$request = $route->parse($_SERVER['REQUEST_URI']);
+		$parser = new RequestParser($app_conf['default_controller'],$app_conf['baseurl']);
+		static::$request = $parser->parse($_SERVER['REQUEST_URI']);
+		if(count($_REQUEST) > 0) {
+			static::$request->setParameters($_REQUEST);
+		}
 		//print_r($_SERVER);
 		//print_r($request);
 

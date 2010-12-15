@@ -7,7 +7,7 @@ require_once('Gargantuan/Test/TestHelp.php');
 
 require_once('Gargantuan/Test/TestDB.php');
 
-require_once('Gargantuan/Test/TestRoute.php');
+require_once('Gargantuan/Test/TestRequestParser.php');
 
 require_once('Gargantuan/Test/TestModel.php');
 
@@ -22,7 +22,7 @@ class AllTests extends \TestSuite {
 		$this->addFile('Gargantuan/Test/TestHelp.php');
 		$this->addFile('Gargantuan/Test/TestDB.php');
 
-		$this->addFile('Gargantuan/Test/TestRoute.php');
+		$this->addFile('Gargantuan/Test/TestRequestParser.php');
 
 		$this->addFile('Gargantuan/Test/TestModel.php');
 

@@ -41,13 +41,15 @@ function form_tag($target, $method = 'POST',$options = array()) {
 		$base,$target,$method,options_to_html($options));
 }
 
-function flash($message) {
-	$_SESSION['flash'] = $message;
+function flash($message,$level = 'message') {
+	$_SESSION['flash'][$level] = $message;
 }
-function readFlash() {
+function readFlashes() {
 	$message = $_SESSION['flash'];
 	unset($_SESSION['flash']);
-	return $message;
+	return join("\n",array_map(function($level,$message) {
+		return sprintf('<div class="%s">%s</div>',$level,$message);
+	},array_keys($message),array_values($message)));
 }
 function hasFlash() {
 	return isset($_SESSION['flash']);
