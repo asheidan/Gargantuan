@@ -53,6 +53,7 @@ abstract class Controller {
 
 	public function redirectTo($path) {
 		Entry::handleRedirect($path);
+		exit();
 		$this->rendered = true;
 	}
 
