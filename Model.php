@@ -43,8 +43,13 @@ class Model {
 
 
 	public static function tableName() {
-		return 
-			preg_replace('/^(.*\\\\)?/','',Help::underscore(get_called_class())).'s';
+		if(isset(static::$table)) {
+			return static::$table;
+		}
+		else {
+			return 
+				preg_replace('/^(.*\\\\)?/','',Help::underscore(get_called_class())).'s';
+		}
 	}
 
 	public static function find($id = 'all') {
