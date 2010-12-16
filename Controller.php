@@ -28,7 +28,10 @@ abstract class Controller {
 	public function renderTemplate() {
 		require(sprintf('%sapp/views/%s.php',APP_ROOT,$this->template));
 	}
-	public function renderPartial($partial) {
+	public function renderPartial($partial,$variables = array()) {
+		foreach($variables as $name => $value) {
+			$$name = $value;
+		}
 		require(sprintf('%sapp/views/%s.php',APP_ROOT,$partial));
 	}
 
