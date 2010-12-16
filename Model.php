@@ -13,7 +13,6 @@ class Model {
 	 */
 	protected static $schema;
 	protected static $db;
-	protected static $validations = array();
 	/**
 	 * Relations
 	 * array(
@@ -25,20 +24,26 @@ class Model {
 	protected static $relations = array();
 
 	protected static function getSchema() {
-		if(!isset(static::$schema)) {
+		$table_name = static::tableName();
+		if($table_name == 'models') {
+			print("<pre>");
+			debug_print_backtrace();
+			exit();
+		}
+		if(!isset(static::$schema[$table_name])) {
 			$db = ResourceManager::getDB();
 			$config = ResourceManager::getConfig();
 			$sql = sprintf(
 				'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = %s AND table_name = %s ORDER BY ORDINAL_POSITION ASC',
-				$db->quote($config['database']['dbname']),$db->quote(static::tableName())
+				$db->quote($config['database']['dbname']),$db->quote($table_name)
 			);
 			$result = $db->query($sql);
-			static::$schema = $result->fetchAll(\PDO::FETCH_COLUMN,0);
+			static::$schema[$table_name] = $result->fetchAll(\PDO::FETCH_COLUMN,0);
 			if(NULL == static::$schema) {
 				static::$schema = array();
 			}
 		}
-		return static::$schema;
+		return static::$schema[$table_name];
 	}
 
 
@@ -52,6 +57,20 @@ class Model {
 		}
 	}
 
+	/**
+	 * Validations
+	 */
+	protected static $validations = array();
+	static function notEmpty($value) {
+		return !empty($value);
+	}
+	static function validEmail($value) {
+		return preg_match('/[a-z_\-+.]+@[a-z_\-+.]+\.[a-z]{2,}/',$value);
+	}
+
+	/**
+	 * Find
+	 */
 	public static function find($id = 'all') {
 		if($id == 'all') {
 			$sql = sprintf(
@@ -104,7 +123,6 @@ class Model {
 
 	public function __construct($initial = array(),$new = true) {
 		//error_log(get_class($this));
-		static::getSchema();
 		$this->new = $new;
 		$this->dirty = array();
 		foreach($initial as $key => $value) {
