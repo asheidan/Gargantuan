@@ -66,9 +66,15 @@ abstract class Controller {
 
 
 	public function get() {
-		error_log(var_export($this->parameters,true));
-		//error_log($_SERVER['REQUEST_URI']);
-		//error_log(var_export($this->request,true));
+		//if(isset($_REQUEST['debug'])) {
+		if(false) {
+			print("<pre>");
+			var_dump($this->parameters);
+			var_dump($_SESSION);
+			print("</pre>");
+			//error_log($_SERVER['REQUEST_URI']);
+			//error_log(var_export($this->request,true));
+		}
 		$action_name = $this->request->action;
 		$this->parameters = $this->request->parameters;
 		if($this->layoutExists($this->shortName())) {

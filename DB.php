@@ -13,6 +13,7 @@ class DB {
 		return $this->pdo->quote($value);
 	}
 	public function exec($sql) {
+		if($this->debug) error_log($sql);
 		return $this->pdo->exec($sql);
 	}
 
