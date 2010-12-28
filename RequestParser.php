@@ -38,40 +38,40 @@ class RequestParser {
 		$this->base_url = $base_url;
 	}
 
-	public function parse($request = '',$result = NULL) {
-		$request = str_replace($this->base_url,'',$request);
+	public function parse($path = '',$request = NULL) {
+		$path = str_replace($this->base_url,'',$path);
 		if(isset($_SERVER['QUERY_STRING'])) {
-			$request = str_replace('?'.$_SERVER['QUERY_STRING'],'',$request);
+			$path = str_replace('?'.$_SERVER['QUERY_STRING'],'',$path);
 		}
-		if(NULL == $result) {
-			$result = new Request($_REQUEST);
+		if(NULL == $request) {
+			$request = new Request($_REQUEST);
 		}
-		if(preg_match_all(static::$re,$request,$matches)) {
+		if(preg_match_all(static::$re,$path,$matches)) {
 			$fields = $matches[1];
 			switch(count($fields)) {
 			case 3:
-				$result->action = $fields[2];
+				$request->action = $fields[2];
 			case 2:
 				if(( $i = intval($fields[1]) ) > 0) {
-					if($result->action == 'index') {
-						$result->action = 'show';
+					if($request->action == 'index') {
+						$request->action = 'show';
 					}
-					$result->id = $fields[1];
+					$request->id = $fields[1];
 				}
 				else {
-					$result->action = $fields[1];
+					$request->action = $fields[1];
 				}
 			case 1:
-				$result->controller = Help::camelcase($fields[0])."Controller";
+				$request->controller = Help::camelcase($fields[0])."Controller";
 				break;
 			case 0:
-				$result->controller = $this->default_controller;
+				$request->controller = $this->default_controller;
 				break;
 			}
 		}
 		else{
-			$result->controller = $this->default_controller;
+			$request->controller = $this->default_controller;
 		}
-		return $result;
+		return $request;
 	}
 }
