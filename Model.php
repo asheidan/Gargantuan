@@ -228,6 +228,14 @@ class Model {
 		return false;
 	}
 
+	public function destroy() {
+		if(!$this->new) {
+			$db = ResourceManager::getDB();
+			$sql = sprintf('DELETE FROM %s WHERE id = %d',static::tableName(), $this->id);
+			return $db->exec($sql);
+		}
+	}
+
 	protected static function sqlFragSetField($name,$value){
 		return sprintf('%s = %s',$name,ResourceManager::getDB()->quote($value));
 	}
