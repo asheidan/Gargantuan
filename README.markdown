@@ -8,6 +8,9 @@ missing. These are "left as an exercise for the reader".
 
 The framework is heavily inspired by [Rails](http://rubyonrails.org/ "Web development that doesn't hurt").
 
+This documentation is in no way ready and if you want to use this to something
+else than inspiration you might want to think twice.
+
 ## How the what now?
 
 So, you got the idea that using this framework in your own project would be a
@@ -59,6 +62,6 @@ Gargantuan presumes that your application uses a certain layout:
 		vendor/
 			Gargantuan/
 
-## API
-
-### Model
+Add your models to your path, redirect all requests to a file which requires
+'Gargantuan/Entry.php' and you might be good to go. Or everything might just
+break down horrible. Chances are about 50/50 these days...
