@@ -36,7 +36,7 @@ The easiest way to obtain it (and keeping it updated) is using it as a
 	you should really look into git submodules.
 
 		$ git clone \
-			https://github.com/tpope/vim-fugitive.git \
+			https://github.com/asheidan/Gargantuan.git \
 			${path_to_project_libs}/Gargantuan
 
 2. Download the source as a tarball from github at
